@@ -20,7 +20,7 @@ int main() {
 
         for (int i = y1; i <= y2; i++) {
             for (int j = x1; j <= x2; j++) {
-                printf("%d", *(ptrTable + i * n + j));
+                printf("%d ", *(ptrTable + i * n + j));
             }
             printf("\n");
         }
