@@ -87,9 +87,11 @@ member readData(FILE *fp){
 }
 
 //showing data of file
-void printData(FILE *fp){
-	member temp = readData(fp);
-	while (temp.id != NULL) {
+void printData(const char *path){
+	FILE *fp = IWF_OPEN_READ(path);
+	while (true) {
+		member temp = readData(fp);
+		if (temp.id == NULL) break;
 		for (int i = 0; i < temp.idSize; i++) {
 			printf("%c", temp.id[i]);
 		}
@@ -101,10 +103,9 @@ void printData(FILE *fp){
 		for (int i = 0; i < temp.numberSize; i++) {
 			printf("%c", temp.number[i]);
 		}
-		printf(" ");
 		printf("\n");
-		temp = readData(fp);
 	}
+	IWF_CLOSE(fp);
 }
 
 //Checkers for related commands
@@ -147,6 +148,14 @@ bool cmdIsExit(char *cmd){
 	if (cmd[1] != 'x') return false;
 	if (cmd[2] != 'i') return false;
 	if (cmd[3] != 't') return false;
+	return true;
+}
+bool cmdIsPrint(char *cmd){
+	if (cmd[0] != 'p') return false;
+	if (cmd[1] != 'r') return false;
+	if (cmd[2] != 'i') return false;
+	if (cmd[3] != 'n') return false;
+	if (cmd[4] != 't') return false;
 	return true;
 }
 
@@ -259,7 +268,6 @@ void find(FILE *fp, const char *filePath){
 		searchByNumber(tag,fp,filePath);
 		return;
 	}
-
 	member tmp; fp = IWF_OPEN_READ(filePath);
 	while (true){
 		tmp = readData(fp);
@@ -431,10 +439,16 @@ void getCommand(FILE *fp, const char *filePath){
 	string cmd; cmd.ptr=0; int i = -1;
 	cmd.ptr = (char*) malloc(6 * sizeof(char));
 	while (true){
-		i++;
-		cmd.ptr[i] = getchar();
+		char c= getchar();
+		while ((c != '\n') && (c != ' ')){
+			i++;
+			cmd.ptr[i] = c;
+			if (i > 4) break;
+			c = getchar();
+		}
+		bool cmdFound = false;
 		//Ignore \n and ' '
-		if ( (cmd.ptr[i] == '\n') ||	 (cmd.ptr[i] == ' ') ) i = -1;
+		if ( (cmd.ptr[i] == '\n') || (cmd.ptr[i] == ' ') ) i = -1;
 
 		//EXIT
 		if( (i == 3) && cmdIsExit(cmd.ptr)){
@@ -443,26 +457,35 @@ void getCommand(FILE *fp, const char *filePath){
 		}
 		//FIND
 		if ( (i == 3) && cmdIsFind(cmd.ptr)) {
-			getchar();
+			cmdFound = true;
 			find(fp,filePath);
 			i = -1;
 		}
 		//CREATE
 		if ( (i == 5) && cmdIsCreate(cmd.ptr)){
-			getchar();
 			create(fp,filePath);
+			cmdFound = true;
 			i = -1;
 		}
 		//DELETE
 		if ( (i == 5) && cmdIsDelete(cmd.ptr)){
-			getchar();
 			deleteId(getTag(), filePath);
+			cmdFound = true;
 			i = -1;
 		}
 		//CHANGE
 		if ( (i == 5) && cmdIsChange(cmd.ptr)){
-			getchar();
-			printf("\n");
+			cmdFound = true;
+			i = -1;
+		}
+		//Print all data
+		if ( (i == 4) && cmdIsPrint(cmd.ptr)){
+			printData(filePath);
+			cmdFound = true;
+			i = -1;
+		}
+		if ( (i != -1) && (!cmdFound)){
+			printf("Error\n");
 			i = -1;
 		}
 	}
