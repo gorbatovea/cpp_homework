@@ -6,9 +6,9 @@
 struct string{
 public:
 	char *ptr = NULL;
-	int lentgth;
+	int length;
 string(){
-	lentgth = 0;
+	length = 0;
 }
 };
 struct member{
@@ -61,7 +61,7 @@ string getStringFromFile(FILE *fp){
 			tmp.ptr[i] = c;
 		}
 		else {
-			tmp.lentgth = i+1;
+			tmp.length = i+1;
 			return tmp;
 		}
 	}
@@ -73,15 +73,15 @@ member readData(FILE *fp){
 	struct member temp; struct string str;
 
 	str = getStringFromFile(fp);
-	temp.id = str.ptr; temp.idSize=str.lentgth;
+	temp.id = str.ptr; temp.idSize=str.length;
 
 	str = getStringFromFile(fp);
-	temp.name = str.ptr; temp.nameSize = str.lentgth;
+	temp.name = str.ptr; temp.nameSize = str.length;
 
 	str = getStringFromFile(fp);
-	temp.number = str.ptr; temp.numberSize = str.lentgth;
+	temp.number = str.ptr; temp.numberSize = str.length;
 
-	str.ptr = NULL; str.lentgth = 0;
+	str.ptr = NULL; str.length = 0;
 
 	return temp;
 }
@@ -171,7 +171,7 @@ string getTag() {
 		else str.ptr = (char *) realloc(str.ptr, (i + 1) * sizeof(char));
 		if ((c != ' ') && (c != '\n')) {
 			str.ptr[i] = c;
-			str.lentgth++;
+			str.length++;
 		}
 		else return str;
 	}
@@ -202,7 +202,7 @@ string tagIsNumber(string tag){
 	string tmp;
 	tmp.ptr = (char*) malloc(sizeof(char));
 	int i = -1;
-	for (int j= 0; j < tag.lentgth; j++){
+	for (int j= 0; j < tag.length; j++){
 		if (((tag.ptr[j] >= 48) && (tag.ptr[j] <= 57)) || (tag.ptr[j] == 45) || (tag.ptr[j] == 40) || (tag.ptr[j] == 41) ){
 				if ((tag.ptr[j] >= 48) && (tag.ptr[j] <= 57)) {
 					i++;
@@ -211,7 +211,7 @@ string tagIsNumber(string tag){
 						tmp.ptr = (char*) realloc(tmp.ptr,(i+1) * sizeof(char));
 						tmp.ptr[i] = tag.ptr[j];
 					}
-					tmp.lentgth++;
+					tmp.length++;
 				}
 		}
 		else  {
@@ -248,7 +248,7 @@ void searchByNumber(string tag,FILE *fp, const char *filePath){
 					tagCounter++;
 				}
 			}
-			if (((tagCounter == tag.lentgth) && (tmpCounter!=tmp.numberSize)) || ((tagCounter != tag.lentgth) && (tmpCounter == tmp.numberSize)) ) {
+			if (((tagCounter == tag.length) && (tmpCounter!=tmp.numberSize)) || ((tagCounter != tag.length) && (tmpCounter == tmp.numberSize)) ) {
 				founded = false;
 				break;
 			}
@@ -273,11 +273,11 @@ void find(FILE *fp, const char *filePath){
 		tmp = readData(fp);
 		if (tmp.id == NULL) break;
 		bool founded =false;
-		if(tag.lentgth <= tmp.nameSize){
-			for (int i = 0; i <= tmp.nameSize - tag.lentgth; i++){
+		if(tag.length <= tmp.nameSize){
+			for (int i = 0; i <= tmp.nameSize - tag.length; i++){
 				if (founded) break;
 				founded =  true;
-				for (int j = 0; j < tag.lentgth; j++){
+				for (int j = 0; j < tag.length; j++){
 					if (!compareChars(tag.ptr[j],tmp.name[i+j])) founded =false;
 				}
 			}
@@ -290,28 +290,28 @@ void find(FILE *fp, const char *filePath){
 string compareID(int newId, string currentId){
 	string tmp;
 	tmp.ptr = (char*) malloc(sizeof(char));
-	tmp.lentgth = 1;
+	tmp.length = 1;
 	int n =1;
 	while (newId != 0){;
 		char buf = (newId % 10*n) + '0';
 		newId = newId / 10;
-		if (tmp.lentgth == 1) tmp.ptr[tmp.lentgth-1] = buf;
+		if (tmp.length == 1) tmp.ptr[tmp.length-1] = buf;
 		else {
-			tmp.ptr = (char*) realloc(tmp.ptr, tmp.lentgth * sizeof(char));
-			tmp.ptr[tmp.lentgth-1] = buf;
+			tmp.ptr = (char*) realloc(tmp.ptr, tmp.length * sizeof(char));
+			tmp.ptr[tmp.length-1] = buf;
 		}
-		tmp.lentgth++;
+		tmp.length++;
 	 }
-	tmp.lentgth--;
-	if (tmp.lentgth != currentId.lentgth) return tmp;
+	tmp.length--;
+	if (tmp.length != currentId.length) return tmp;
 	else{
 		bool equals = true;
-		for (int i =0; i < tmp.lentgth; i++){
+		for (int i =0; i < tmp.length; i++){
 			if (tmp.ptr[i] != currentId.ptr[i]) equals = false;
 		}
 		if (equals) {
 			tmp.ptr = NULL;
-			tmp.lentgth = 0;
+			tmp.length = 0;
 			return tmp;
 		}
 	}
@@ -342,9 +342,9 @@ string generateId(FILE *fp, const char *filePath){
 
 void create(FILE *fp,const char *filePath){
 	string tmp; member newMember;
-	tmp = generateId(fp,filePath); newMember.id = tmp.ptr; newMember.idSize = tmp.lentgth;
-	tmp = getTag(); newMember.name = tmp.ptr; newMember.nameSize = tmp.lentgth;
-	tmp = getTag(); newMember.number = tmp.ptr; newMember.numberSize = tmp.lentgth;
+	tmp = generateId(fp,filePath); newMember.id = tmp.ptr; newMember.idSize = tmp.length;
+	tmp = getTag(); newMember.name = tmp.ptr; newMember.nameSize = tmp.length;
+	tmp = getTag(); newMember.number = tmp.ptr; newMember.numberSize = tmp.length;
 	IWF_CLOSE(fp);
 	IWF_OPEN_WRITE(filePath);
 	for (int i = 0; i < newMember.idSize; i++){
@@ -369,8 +369,8 @@ void create(FILE *fp,const char *filePath){
 }
 
 bool searchById(string tag, member current){
-	if (tag.lentgth != current.idSize) return false;
-	for (int i = 0; i < tag.lentgth; i++){
+	if (tag.length != current.idSize) return false;
+	for (int i = 0; i < tag.length; i++){
 		if (tag.ptr[i] != current.id[i]) return false;
 	}
 	return true;
@@ -434,6 +434,163 @@ void deleteId(string tag, const char *path){
 	IWF_CLOSE(fileWrite);
 }
 
+void change(string tag, string id, const char *path){string tagNumber = tagIsNumber(tag);
+	if (tagNumber.ptr != NULL){
+		FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
+		FILE *sourceFile = IWF_OPEN_READ(path);
+		while (true){
+			member newMember = readData(sourceFile);
+			if (newMember.id == NULL) break;
+			if (!searchById(id,newMember)) {
+				for (int i = 0; i < newMember.idSize; i++){
+					fwrite(&newMember.id[i],sizeof(char),1,tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ",sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < newMember.nameSize; i++){
+					fwrite(&newMember.name[i],sizeof(char),1,tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ",sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < newMember.numberSize; i++){
+					fwrite(&newMember.number[i],sizeof(char),1,tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite("\n",sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			else{
+				for (int i = 0; i < newMember.idSize; i++){
+					fwrite(&newMember.id[i],sizeof(char),1,tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ",sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < newMember.nameSize; i++){
+					fwrite(&newMember.name[i],sizeof(char),1,tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ",sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < tag.length; i++){
+					fwrite(&tag.ptr[i],sizeof(char),1,tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite("\n",sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+		}
+		IWF_CLOSE(tmpFile);
+		IWF_CLOSE(sourceFile);
+
+		FILE *fileRead = IWF_OPEN_READ("tmp");
+		FILE *fileWrite = IWF_OPEN_REWRITE(path);
+		while (true){
+			member newMember = readData(fileRead);
+			if (newMember.id == NULL) break;
+			for (int i = 0; i < newMember.idSize; i++){
+				fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
+				fflush(fileWrite);
+			}
+			fwrite(" ",sizeof(char),1,fileWrite);
+			fflush(fileWrite);
+			for (int i = 0; i < newMember.nameSize; i++){
+				fwrite(&newMember.name[i],sizeof(char),1,fileWrite);
+				fflush(fileWrite);
+			}
+			fwrite(" ",sizeof(char),1,fileWrite);
+			fflush(fileWrite);
+			for (int i = 0; i < newMember.numberSize; i++){
+				fwrite(&newMember.number[i],sizeof(char),1,fileWrite);
+				fflush(fileWrite);
+			}
+			fwrite("\n",sizeof(char),1,fileWrite);
+			fflush(fileWrite);
+		}
+		IWF_CLOSE(fileRead);
+		IWF_CLOSE(fileWrite);
+		return;
+	}
+
+	FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
+	FILE *sourceFile = IWF_OPEN_READ(path);
+	while (true){
+		member newMember = readData(sourceFile);
+		if (newMember.id == NULL) break;
+		if (!searchById(id,newMember)) {
+			for (int i = 0; i < newMember.idSize; i++){
+				fwrite(&newMember.id[i],sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			fwrite(" ",sizeof(char),1,tmpFile);
+			fflush(tmpFile);
+			for (int i = 0; i < newMember.nameSize; i++){
+				fwrite(&newMember.name[i],sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			fwrite(" ",sizeof(char),1,tmpFile);
+			fflush(tmpFile);
+			for (int i = 0; i < newMember.numberSize; i++){
+				fwrite(&newMember.number[i],sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			fwrite("\n",sizeof(char),1,tmpFile);
+			fflush(tmpFile);
+		}
+		else{
+			for (int i = 0; i < newMember.idSize; i++){
+				fwrite(&newMember.id[i],sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			fwrite(" ",sizeof(char),1,tmpFile);
+			fflush(tmpFile);
+			for (int i = 0; i < tag.length; i++){
+				fwrite(&tag.ptr[i],sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			fwrite(" ",sizeof(char),1,tmpFile);
+			fflush(tmpFile);
+			for (int i = 0; i < newMember.numberSize; i++){
+				fwrite(&newMember.number[i],sizeof(char),1,tmpFile);
+				fflush(tmpFile);
+			}
+			fwrite("\n",sizeof(char),1,tmpFile);
+			fflush(tmpFile);
+		}
+	}
+	IWF_CLOSE(tmpFile);
+	IWF_CLOSE(sourceFile);
+
+	FILE *fileRead = IWF_OPEN_READ("tmp");
+	FILE *fileWrite = IWF_OPEN_REWRITE(path);
+	while (true){
+		member newMember = readData(fileRead);
+		if (newMember.id == NULL) break;
+		for (int i = 0; i < newMember.idSize; i++){
+			fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
+			fflush(fileWrite);
+		}
+		fwrite(" ",sizeof(char),1,fileWrite);
+		fflush(fileWrite);
+		for (int i = 0; i < newMember.nameSize; i++){
+			fwrite(&newMember.name[i],sizeof(char),1,fileWrite);
+			fflush(fileWrite);
+		}
+		fwrite(" ",sizeof(char),1,fileWrite);
+		fflush(fileWrite);
+		for (int i = 0; i < newMember.numberSize; i++){
+			fwrite(&newMember.number[i],sizeof(char),1,fileWrite);
+			fflush(fileWrite);
+		}
+		fwrite("\n",sizeof(char),1,fileWrite);
+		fflush(fileWrite);
+	}
+	IWF_CLOSE(fileRead);
+	IWF_CLOSE(fileWrite);
+	return;
+}
 //getting command from console
 void getCommand(FILE *fp, const char *filePath){
 	string cmd; cmd.ptr=0; int i = -1;
@@ -443,7 +600,6 @@ void getCommand(FILE *fp, const char *filePath){
 		while ((c != '\n') && (c != ' ')){
 			i++;
 			cmd.ptr[i] = c;
-			if (i > 4) break;
 			c = getchar();
 		}
 		bool cmdFound = false;
@@ -476,6 +632,7 @@ void getCommand(FILE *fp, const char *filePath){
 		//CHANGE
 		if ( (i == 5) && cmdIsChange(cmd.ptr)){
 			cmdFound = true;
+			change(getTag(),getTag(),filePath);
 			i = -1;
 		}
 		//Print all data
@@ -495,6 +652,6 @@ int main(int argc, const char *argv[]) {
 	FILE *fp = IWF_OPEN_READ(filePath);
 	srand(time(0));
 	getCommand(fp,filePath);
-	printf("\nDONE!\n");
+	printf("DONE!\n");
 	return 0;
 }
