@@ -369,7 +369,7 @@ bool searchById(string tag, member current){
 }
 
 void deleteId(string tag, const char *path){
-	FILE *fp = IWF_OPEN_REWRITE("tmp.txt");
+	FILE *fp = IWF_OPEN_REWRITE("tmp");
 	FILE *writeBackFile = IWF_OPEN_READ(path);
 	while (true){
 		member newMember = readData(writeBackFile);
@@ -398,7 +398,7 @@ void deleteId(string tag, const char *path){
 	IWF_CLOSE(fp);
 	IWF_CLOSE(writeBackFile);
 
-	FILE *fileRead = IWF_OPEN_READ("tmp.txt");
+	FILE *fileRead = IWF_OPEN_READ("tmp");
 	FILE *fileWrite = IWF_OPEN_REWRITE(path);
 	while (true){
 		member newMember = readData(fileRead);
