@@ -591,6 +591,11 @@ void change(string tag, string id, const char *path){string tagNumber = tagIsNum
 	IWF_CLOSE(fileWrite);
 	return;
 }
+
+string getErrorTag(){
+
+}
+
 //getting command from console
 void getCommand(FILE *fp, const char *filePath){
 	string cmd; cmd.ptr=0; int i = -1;
@@ -608,7 +613,7 @@ void getCommand(FILE *fp, const char *filePath){
 
 		//EXIT
 		if( (i == 3) && cmdIsExit(cmd.ptr)){
-			free(cmd.ptr);
+			cmd.ptr = NULL; cmd.length = 0;
 			return;
 		}
 		//FIND
@@ -641,9 +646,12 @@ void getCommand(FILE *fp, const char *filePath){
 			cmdFound = true;
 			i = -1;
 		}
-		if ( (i != -1) && (!cmdFound)){
+		if (!cmdFound){
 			printf("Error\n");
 			i = -1;
+			while (c != '\n')  {
+				c = getchar();
+			}
 		}
 	}
 }
