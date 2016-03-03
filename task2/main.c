@@ -4,7 +4,6 @@
 #include<limits.h>
 
 struct string{
-public:
 	char *ptr = NULL;
 	int length;
 	string(){
