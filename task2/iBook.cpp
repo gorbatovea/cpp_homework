@@ -7,9 +7,9 @@ struct string{
 public:
 	char *ptr = NULL;
 	int length;
-string(){
-	length = 0;
-}
+	string(){
+		length = 0;
+	}
 };
 struct member{
 	char *id = NULL;
@@ -204,15 +204,15 @@ string tagIsNumber(string tag){
 	int i = -1;
 	for (int j= 0; j < tag.length; j++){
 		if (((tag.ptr[j] >= 48) && (tag.ptr[j] <= 57)) || (tag.ptr[j] == 45) || (tag.ptr[j] == 40) || (tag.ptr[j] == 41) ){
-				if ((tag.ptr[j] >= 48) && (tag.ptr[j] <= 57)) {
-					i++;
-					if (i == 0) tmp.ptr[i] = tag.ptr[j];
-					else {
-						tmp.ptr = (char*) realloc(tmp.ptr,(i+1) * sizeof(char));
-						tmp.ptr[i] = tag.ptr[j];
-					}
-					tmp.length++;
+			if ((tag.ptr[j] >= 48) && (tag.ptr[j] <= 57)) {
+				i++;
+				if (i == 0) tmp.ptr[i] = tag.ptr[j];
+				else {
+					tmp.ptr = (char*) realloc(tmp.ptr,(i+1) * sizeof(char));
+					tmp.ptr[i] = tag.ptr[j];
 				}
+				tmp.length++;
+			}
 		}
 		else  {
 			tmp.ptr = NULL;
@@ -238,7 +238,7 @@ void searchByNumber(string tag,FILE *fp, const char *filePath){
 
 			founded = true;
 			if (!Digit(tmp.number[tmpCounter])) tmpCounter++;
-				else{
+			else{
 				if (tmp.number[tmpCounter] != tag.ptr[tagCounter]) {
 					founded = false;
 					break;
@@ -301,7 +301,7 @@ string compareID(int newId, string currentId){
 			tmp.ptr[tmp.length-1] = buf;
 		}
 		tmp.length++;
-	 }
+	}
 	tmp.length--;
 	if (tmp.length != currentId.length) return tmp;
 	else{
@@ -411,33 +411,54 @@ void deleteId(string tag, const char *path){
 	while (true){
 		member newMember = readData(fileRead);
 		if (newMember.id == NULL) break;
-			for (int i = 0; i < newMember.idSize; i++){
-				fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
-				fflush(fileWrite);
-			}
-			fwrite(" ",sizeof(char),1,fileWrite);
+		for (int i = 0; i < newMember.idSize; i++){
+			fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
 			fflush(fileWrite);
-			for (int i = 0; i < newMember.nameSize; i++){
-				fwrite(&newMember.name[i],sizeof(char),1,fileWrite);
-				fflush(fileWrite);
-			}
-			fwrite(" ",sizeof(char),1,fileWrite);
+		}
+		fwrite(" ",sizeof(char),1,fileWrite);
+		fflush(fileWrite);
+		for (int i = 0; i < newMember.nameSize; i++){
+			fwrite(&newMember.name[i],sizeof(char),1,fileWrite);
 			fflush(fileWrite);
-			for (int i = 0; i < newMember.numberSize; i++){
-				fwrite(&newMember.number[i],sizeof(char),1,fileWrite);
-				fflush(fileWrite);
-			}
-			fwrite("\n",sizeof(char),1,fileWrite);
+		}
+		fwrite(" ",sizeof(char),1,fileWrite);
+		fflush(fileWrite);
+		for (int i = 0; i < newMember.numberSize; i++){
+			fwrite(&newMember.number[i],sizeof(char),1,fileWrite);
 			fflush(fileWrite);
+		}
+		fwrite("\n",sizeof(char),1,fileWrite);
+		fflush(fileWrite);
 	}
 	IWF_CLOSE(fileRead);
 	IWF_CLOSE(fileWrite);
 }
 
-void change(string tag, string id, const char *path){string tagNumber = tagIsNumber(tag);
-	if (tagNumber.ptr != NULL){
+bool isNumber(string str){
+	if (str.length != 6) return false;
+	if (str.ptr[0] != 'n') return  false;
+	if (str.ptr[1] != 'u') return  false;
+	if (str.ptr[2] != 'm') return  false;
+	if (str.ptr[3] != 'b') return  false;
+	if (str.ptr[4] != 'e') return  false;
+	if (str.ptr[5] != 'r') return  false;
+	return true;
+}
+
+bool isName(string str){
+	if (str.length != 4) return false;
+	if (str.ptr[0] != 'n') return  false;
+	if (str.ptr[1] != 'a') return  false;
+	if (str.ptr[2] != 'm') return  false;
+	if (str.ptr[3] != 'e') return  false;
+	return true;
+}
+
+void change(string tag, string arg, string id, const char *path){
+	if (isNumber(arg)){
 		FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
 		FILE *sourceFile = IWF_OPEN_READ(path);
+		string tagNumber = tagIsNumber(tag);
 		while (true){
 			member newMember = readData(sourceFile);
 			if (newMember.id == NULL) break;
@@ -513,85 +534,85 @@ void change(string tag, string id, const char *path){string tagNumber = tagIsNum
 		IWF_CLOSE(fileWrite);
 		return;
 	}
+	if (isName(arg)) {
+		FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
+		FILE *sourceFile = IWF_OPEN_READ(path);
+		while (true) {
+			member newMember = readData(sourceFile);
+			if (newMember.id == NULL) break;
+			if (!searchById(id, newMember)) {
+				for (int i = 0; i < newMember.idSize; i++) {
+					fwrite(&newMember.id[i], sizeof(char), 1, tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ", sizeof(char), 1, tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < newMember.nameSize; i++) {
+					fwrite(&newMember.name[i], sizeof(char), 1, tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ", sizeof(char), 1, tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < newMember.numberSize; i++) {
+					fwrite(&newMember.number[i], sizeof(char), 1, tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite("\n", sizeof(char), 1, tmpFile);
+				fflush(tmpFile);
+			}
+			else {
+				for (int i = 0; i < newMember.idSize; i++) {
+					fwrite(&newMember.id[i], sizeof(char), 1, tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ", sizeof(char), 1, tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < tag.length; i++) {
+					fwrite(&tag.ptr[i], sizeof(char), 1, tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite(" ", sizeof(char), 1, tmpFile);
+				fflush(tmpFile);
+				for (int i = 0; i < newMember.numberSize; i++) {
+					fwrite(&newMember.number[i], sizeof(char), 1, tmpFile);
+					fflush(tmpFile);
+				}
+				fwrite("\n", sizeof(char), 1, tmpFile);
+				fflush(tmpFile);
+			}
+		}
+		IWF_CLOSE(tmpFile);
+		IWF_CLOSE(sourceFile);
 
-	FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
-	FILE *sourceFile = IWF_OPEN_READ(path);
-	while (true){
-		member newMember = readData(sourceFile);
-		if (newMember.id == NULL) break;
-		if (!searchById(id,newMember)) {
-			for (int i = 0; i < newMember.idSize; i++){
-				fwrite(&newMember.id[i],sizeof(char),1,tmpFile);
-				fflush(tmpFile);
+		FILE *fileRead = IWF_OPEN_READ("tmp");
+		FILE *fileWrite = IWF_OPEN_REWRITE(path);
+		while (true) {
+			member newMember = readData(fileRead);
+			if (newMember.id == NULL) break;
+			for (int i = 0; i < newMember.idSize; i++) {
+				fwrite(&newMember.id[i], sizeof(char), 1, fileWrite);
+				fflush(fileWrite);
 			}
-			fwrite(" ",sizeof(char),1,tmpFile);
-			fflush(tmpFile);
-			for (int i = 0; i < newMember.nameSize; i++){
-				fwrite(&newMember.name[i],sizeof(char),1,tmpFile);
-				fflush(tmpFile);
+			fwrite(" ", sizeof(char), 1, fileWrite);
+			fflush(fileWrite);
+			for (int i = 0; i < newMember.nameSize; i++) {
+				fwrite(&newMember.name[i], sizeof(char), 1, fileWrite);
+				fflush(fileWrite);
 			}
-			fwrite(" ",sizeof(char),1,tmpFile);
-			fflush(tmpFile);
-			for (int i = 0; i < newMember.numberSize; i++){
-				fwrite(&newMember.number[i],sizeof(char),1,tmpFile);
-				fflush(tmpFile);
+			fwrite(" ", sizeof(char), 1, fileWrite);
+			fflush(fileWrite);
+			for (int i = 0; i < newMember.numberSize; i++) {
+				fwrite(&newMember.number[i], sizeof(char), 1, fileWrite);
+				fflush(fileWrite);
 			}
-			fwrite("\n",sizeof(char),1,tmpFile);
-			fflush(tmpFile);
+			fwrite("\n", sizeof(char), 1, fileWrite);
+			fflush(fileWrite);
 		}
-		else{
-			for (int i = 0; i < newMember.idSize; i++){
-				fwrite(&newMember.id[i],sizeof(char),1,tmpFile);
-				fflush(tmpFile);
-			}
-			fwrite(" ",sizeof(char),1,tmpFile);
-			fflush(tmpFile);
-			for (int i = 0; i < tag.length; i++){
-				fwrite(&tag.ptr[i],sizeof(char),1,tmpFile);
-				fflush(tmpFile);
-			}
-			fwrite(" ",sizeof(char),1,tmpFile);
-			fflush(tmpFile);
-			for (int i = 0; i < newMember.numberSize; i++){
-				fwrite(&newMember.number[i],sizeof(char),1,tmpFile);
-				fflush(tmpFile);
-			}
-			fwrite("\n",sizeof(char),1,tmpFile);
-			fflush(tmpFile);
-		}
+		IWF_CLOSE(fileRead);
+		IWF_CLOSE(fileWrite);
+		return;
 	}
-	IWF_CLOSE(tmpFile);
-	IWF_CLOSE(sourceFile);
-
-	FILE *fileRead = IWF_OPEN_READ("tmp");
-	FILE *fileWrite = IWF_OPEN_REWRITE(path);
-	while (true){
-		member newMember = readData(fileRead);
-		if (newMember.id == NULL) break;
-		for (int i = 0; i < newMember.idSize; i++){
-			fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
-			fflush(fileWrite);
-		}
-		fwrite(" ",sizeof(char),1,fileWrite);
-		fflush(fileWrite);
-		for (int i = 0; i < newMember.nameSize; i++){
-			fwrite(&newMember.name[i],sizeof(char),1,fileWrite);
-			fflush(fileWrite);
-		}
-		fwrite(" ",sizeof(char),1,fileWrite);
-		fflush(fileWrite);
-		for (int i = 0; i < newMember.numberSize; i++){
-			fwrite(&newMember.number[i],sizeof(char),1,fileWrite);
-			fflush(fileWrite);
-		}
-		fwrite("\n",sizeof(char),1,fileWrite);
-		fflush(fileWrite);
-	}
-	IWF_CLOSE(fileRead);
-	IWF_CLOSE(fileWrite);
-	return;
 }
-
 string getErrorTag(){
 
 }
@@ -637,7 +658,7 @@ void getCommand(FILE *fp, const char *filePath){
 		//CHANGE
 		if ( (i == 5) && cmdIsChange(cmd.ptr)){
 			cmdFound = true;
-			change(getTag(),getTag(),filePath);
+			change(getTag(),getTag(),getTag(),filePath);
 			i = -1;
 		}
 		//Print all data
