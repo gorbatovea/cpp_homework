@@ -223,8 +223,8 @@ bool Digit(int c){
 	return false;
 }
 
-void searchByNumber(struct string tag,FILE *fp, const char *filePath){
-	fp = IWF_OPEN_READ(filePath); struct member tmp = {NULL,NULL,NULL,0,0,0};
+void searchByNumber(struct string tag,const char *filePath){
+	FILE *fp = IWF_OPEN_READ(filePath); struct member tmp = {NULL,NULL,NULL,0,0,0};
 	while (true){
 		tmp = readData(fp);
 		if (tmp.id == NULL) break;
@@ -255,20 +255,21 @@ void searchByNumber(struct string tag,FILE *fp, const char *filePath){
 }
 
 //Find by tags
-void find(FILE *fp, const char *filePath){
+void find(const char *filePath){
 	//getting searchtag
 	struct string tag = getTag();
 	struct string tagNumber = tagIsNumber(tag);
 	if (tagNumber.ptr != NULL){
 		tag = tagNumber;
-		searchByNumber(tag,fp,filePath);
+		searchByNumber(tag,filePath);
 		return;
 	}
-	struct member tmp = {NULL,NULL,NULL,0,0,0};; fp = IWF_OPEN_READ(filePath);
+	struct member tmp = {NULL,NULL,NULL,0,0,0};
+	FILE *fp = IWF_OPEN_READ(filePath);
 	while (true){
 		tmp = readData(fp);
 		if (tmp.id == NULL) break;
-		bool founded =false;
+		bool founded = false;
 		if(tag.length <= tmp.nameSize){
 			for (int i = 0; i <= tmp.nameSize - tag.length; i++){
 				if (founded) break;
@@ -355,6 +356,7 @@ struct string generateId(const char *filePath){
 			}
 			else{
 				int cntr = 0;
+				i++;
 				while (i != 0){
 					char buf = (i % 10) + '0';
 					if (id.length == 0) id.ptr = (char *) malloc(sizeof(char));
@@ -679,7 +681,7 @@ void getCommand(FILE *fp, const char *filePath){
 		//FIND
 		if ( (i == 3) && cmdIsFind(cmd.ptr)) {
 			cmdFound = true;
-			find(fp,filePath);
+			find(filePath);
 			i = -1;
 		}
 		//CREATE
