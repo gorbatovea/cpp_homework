@@ -681,7 +681,8 @@ void getCommand(FILE *fp, const char *filePath){
 		//FIND
 		if ( (i == 3) && cmdIsFind(cmd.ptr)) {
 			cmdFound = true;
-			find(filePath);
+			//find(filePath);
+			printf("outputTest\n");
 			i = -1;
 		}
 		//CREATE
