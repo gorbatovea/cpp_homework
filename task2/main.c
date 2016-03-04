@@ -2,20 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include<limits.h>
-
+#include<stdbool.h>
 struct string{
-	char *ptr = NULL;
+	char *ptr;
 	int length;
-	string(){
-		length = 0;
-	}
 };
 struct member{
-	char *id = NULL;
+	char *id;
+	char *name;
+	char *number;
 	int idSize;
-	char *name = NULL;
 	int nameSize;
-	char *number = NULL;
 	int numberSize;
 };
 
@@ -48,9 +45,9 @@ FILE *IWF_OPEN_REWRITE(const char *path){
 
 
 //reading string from fileStream
-string getStringFromFile(FILE *fp){
-	string tmp; char c; int i = -1; tmp.ptr = NULL;
-
+struct string getStringFromFile(FILE *fp){
+	struct string tmp = {NULL,0};// tmp.ptr = NULL; tmp.length = 0;
+	char c; int i = -1; tmp.ptr = NULL;
 	while(true){
 		c = fgetc(fp);
 		if ((c !=' ') && (c != '\n') && (c != -1)){
@@ -68,8 +65,8 @@ string getStringFromFile(FILE *fp){
 }
 
 //this function using everytime when we need to take the next member from book
-member readData(FILE *fp){
-	struct member temp; struct string str;
+	struct member readData(FILE *fp){
+	struct member temp={.id = NULL, .name=NULL, .number=NULL}; struct string str = {NULL,0};
 
 	str = getStringFromFile(fp);
 	temp.id = str.ptr; temp.idSize=str.length;
@@ -84,12 +81,12 @@ member readData(FILE *fp){
 
 	return temp;
 }
-
 //showing data of file
 void printData(const char *path){
 	FILE *fp = IWF_OPEN_READ(path);
-	while (true) {
-		member temp = readData(fp);
+	while (1 == 1 ) {
+		struct member temp={NULL,NULL,NULL,0,0,0};
+		temp = readData(fp);
 		if (temp.id == NULL) break;
 		for (int i = 0; i < temp.idSize; i++) {
 			printf("%c", temp.id[i]);
@@ -159,8 +156,8 @@ bool cmdIsPrint(char *cmd){
 }
 
 //Getting search tag
-string getTag() {
-	string str;
+struct string getTag() {
+	struct string str; str.ptr = NULL; str.length = 0;
 	int i = -1;
 	char c;
 	while (true) {
@@ -176,7 +173,7 @@ string getTag() {
 	}
 }
 
-void printMember(member tmp){
+void printMember(struct member tmp){
 	for (int i = 0; i < tmp.idSize; i++){
 		printf("%c",tmp.id[i]);
 	}
@@ -197,8 +194,8 @@ bool compareChars(int c1, int c2){
 	return false;
 }
 
-string tagIsNumber(string tag){
-	string tmp;
+struct string tagIsNumber(struct string tag){
+	struct string tmp = {NULL,0};
 	tmp.ptr = (char*) malloc(sizeof(char));
 	int i = -1;
 	for (int j= 0; j < tag.length; j++){
@@ -226,8 +223,8 @@ bool Digit(int c){
 	return false;
 }
 
-void searchByNumber(string tag,FILE *fp, const char *filePath){
-	fp = IWF_OPEN_READ(filePath); member tmp;
+void searchByNumber(struct string tag,FILE *fp, const char *filePath){
+	fp = IWF_OPEN_READ(filePath); struct member tmp = {NULL,NULL,NULL,0,0,0};
 	while (true){
 		tmp = readData(fp);
 		if (tmp.id == NULL) break;
@@ -260,14 +257,14 @@ void searchByNumber(string tag,FILE *fp, const char *filePath){
 //Find by tags
 void find(FILE *fp, const char *filePath){
 	//getting searchtag
-	string tag = getTag();
-	string tagNumber = tagIsNumber(tag);
+	struct string tag = getTag();
+	struct string tagNumber = tagIsNumber(tag);
 	if (tagNumber.ptr != NULL){
 		tag = tagNumber;
 		searchByNumber(tag,fp,filePath);
 		return;
 	}
-	member tmp; fp = IWF_OPEN_READ(filePath);
+	struct member tmp = {NULL,NULL,NULL,0,0,0};; fp = IWF_OPEN_READ(filePath);
 	while (true){
 		tmp = readData(fp);
 		if (tmp.id == NULL) break;
@@ -286,8 +283,8 @@ void find(FILE *fp, const char *filePath){
 	IWF_CLOSE(fp);
 }
 
-string compareID(int newId, string currentId){
-	string tmp;
+struct string compareID(int newId, struct string currentId){
+	struct string tmp= {NULL,0};
 	tmp.ptr = (char*) malloc(sizeof(char));
 	tmp.length = 1;
 	int n =1;
@@ -317,9 +314,9 @@ string compareID(int newId, string currentId){
 	return tmp;
 }
 
-string generateId(FILE *fp, const char *filePath){
+struct string generateId(FILE *fp, const char *filePath){
 	fp = IWF_OPEN_READ(filePath);
-	string tmp; member newMember;
+	struct string tmp = {NULL,0}; struct member newMember={NULL,NULL,NULL,0,0,0};
 	int r; int i = 0;
 	while(true){
 		i++;
@@ -340,7 +337,7 @@ string generateId(FILE *fp, const char *filePath){
 }
 
 void create(FILE *fp,const char *filePath){
-	string tmp; member newMember;
+	struct string tmp= {NULL,0}; struct member newMember  = {NULL,NULL,NULL,0,0,0};;
 	tmp = generateId(fp,filePath); newMember.id = tmp.ptr; newMember.idSize = tmp.length;
 	tmp = getTag(); newMember.name = tmp.ptr; newMember.nameSize = tmp.length;
 	tmp = getTag(); newMember.number = tmp.ptr; newMember.numberSize = tmp.length;
@@ -367,7 +364,7 @@ void create(FILE *fp,const char *filePath){
 	IWF_CLOSE(fp);
 }
 
-bool searchById(string tag, member current){
+bool searchById(struct string tag, struct member current){
 	if (tag.length != current.idSize) return false;
 	for (int i = 0; i < tag.length; i++){
 		if (tag.ptr[i] != current.id[i]) return false;
@@ -375,11 +372,12 @@ bool searchById(string tag, member current){
 	return true;
 }
 
-void deleteId(string tag, const char *path){
+void deleteId(struct string tag, const char *path){
 	FILE *fp = IWF_OPEN_REWRITE("tmp");
 	FILE *writeBackFile = IWF_OPEN_READ(path);
 	while (true){
-		member newMember = readData(writeBackFile);
+		struct member newMember  = {NULL,NULL,NULL,0,0,0};
+		newMember = readData(writeBackFile);
 		if (newMember.id == NULL) break;
 		if (!searchById(tag,newMember)) {
 			for (int i = 0; i < newMember.idSize; i++){
@@ -408,7 +406,8 @@ void deleteId(string tag, const char *path){
 	FILE *fileRead = IWF_OPEN_READ("tmp");
 	FILE *fileWrite = IWF_OPEN_REWRITE(path);
 	while (true){
-		member newMember = readData(fileRead);
+		struct member newMember  = {NULL,NULL,NULL,0,0,0};
+		newMember= readData(fileRead);
 		if (newMember.id == NULL) break;
 		for (int i = 0; i < newMember.idSize; i++){
 			fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
@@ -433,7 +432,7 @@ void deleteId(string tag, const char *path){
 	IWF_CLOSE(fileWrite);
 }
 
-bool isNumber(string str){
+bool isNumber(struct string str){
 	if (str.length != 6) return false;
 	if (str.ptr[0] != 'n') return  false;
 	if (str.ptr[1] != 'u') return  false;
@@ -444,7 +443,7 @@ bool isNumber(string str){
 	return true;
 }
 
-bool isName(string str){
+bool isName(struct string str){
 	if (str.length != 4) return false;
 	if (str.ptr[0] != 'n') return  false;
 	if (str.ptr[1] != 'a') return  false;
@@ -453,13 +452,15 @@ bool isName(string str){
 	return true;
 }
 
-void change(string tag, string arg, string id, const char *path){
+void change(struct string tag, struct string arg, struct string id, const char *path){
 	if (isNumber(arg)){
 		FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
 		FILE *sourceFile = IWF_OPEN_READ(path);
-		string tagNumber = tagIsNumber(tag);
+		struct string tagNumber ={NULL,0};
+				tagNumber= tagIsNumber(tag);
 		while (true){
-			member newMember = readData(sourceFile);
+			struct member newMember = {NULL,NULL,NULL,0,0,0};
+			newMember= readData(sourceFile);
 			if (newMember.id == NULL) break;
 			if (!searchById(id,newMember)) {
 				for (int i = 0; i < newMember.idSize; i++){
@@ -508,7 +509,7 @@ void change(string tag, string arg, string id, const char *path){
 		FILE *fileRead = IWF_OPEN_READ("tmp");
 		FILE *fileWrite = IWF_OPEN_REWRITE(path);
 		while (true){
-			member newMember = readData(fileRead);
+			struct member newMember = readData(fileRead);
 			if (newMember.id == NULL) break;
 			for (int i = 0; i < newMember.idSize; i++){
 				fwrite(&newMember.id[i],sizeof(char),1,fileWrite);
@@ -537,7 +538,7 @@ void change(string tag, string arg, string id, const char *path){
 		FILE *tmpFile = IWF_OPEN_REWRITE("tmp");
 		FILE *sourceFile = IWF_OPEN_READ(path);
 		while (true) {
-			member newMember = readData(sourceFile);
+			struct member newMember = readData(sourceFile);
 			if (newMember.id == NULL) break;
 			if (!searchById(id, newMember)) {
 				for (int i = 0; i < newMember.idSize; i++) {
@@ -586,7 +587,7 @@ void change(string tag, string arg, string id, const char *path){
 		FILE *fileRead = IWF_OPEN_READ("tmp");
 		FILE *fileWrite = IWF_OPEN_REWRITE(path);
 		while (true) {
-			member newMember = readData(fileRead);
+			struct member newMember = readData(fileRead);
 			if (newMember.id == NULL) break;
 			for (int i = 0; i < newMember.idSize; i++) {
 				fwrite(&newMember.id[i], sizeof(char), 1, fileWrite);
@@ -616,7 +617,7 @@ void change(string tag, string arg, string id, const char *path){
 
 //getting command from console
 void getCommand(FILE *fp, const char *filePath){
-	string cmd; cmd.ptr=0; int i = -1;
+	struct string cmd= {NULL,0}; cmd.ptr=0; int i = -1;
 	cmd.ptr = (char*) malloc(6 * sizeof(char));
 	while (true){
 		char c= getchar();
@@ -678,6 +679,6 @@ int main(int argc, const char *argv[]) {
 	FILE *fp = IWF_OPEN_READ(filePath);
 	srand(time(0));
 	getCommand(fp,filePath);
-	printf("DONE!\n");
+	//printf("DONE!\n");
 	return 0;
 }
