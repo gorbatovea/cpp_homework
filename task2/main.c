@@ -178,14 +178,17 @@ void printMember(struct member tmp){
 		printf("%c",tmp.id[i]);
 	}
 	printf(" ");
+	fflush(stdout);
 	for (int i = 0; i < tmp.nameSize; i++){
 		printf("%c",tmp.name[i]);
 	}
 	printf(" ");
+	fflush(stdout);
 	for (int i = 0; i < tmp.numberSize; i++){
 		printf("%c",tmp.number[i]);
 	}
 	printf("\n");
+	fflush(stdout);
 
 }
 
@@ -681,8 +684,8 @@ void getCommand(FILE *fp, const char *filePath){
 		//FIND
 		if ( (i == 3) && cmdIsFind(cmd.ptr)) {
 			cmdFound = true;
-			//find(filePath);
-			printf("outputTest\n");
+			find(filePath);
+			//printf("outputTest\n");
 			i = -1;
 		}
 		//CREATE
