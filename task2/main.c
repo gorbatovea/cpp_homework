@@ -314,9 +314,10 @@ struct string compareID(int newId, struct string currentId){
 	return tmp;
 }
 
-struct string generateId(FILE *fp, const char *filePath){
+/*struct string generateId(FILE *fp, const char *filePath){
 	fp = IWF_OPEN_READ(filePath);
-	struct string tmp = {NULL,0}; struct member newMember={NULL,NULL,NULL,0,0,0};
+	struct string tmp = {NULL,0}; struct member newMember;
+	newMember={NULL,NULL,NULL,0,0,0};
 	int r; int i = 0;
 	while(true){
 		i++;
@@ -335,14 +336,52 @@ struct string generateId(FILE *fp, const char *filePath){
 	IWF_CLOSE(fp);
 	return tmp;
 }
+*/
 
-void create(FILE *fp,const char *filePath){
-	struct string tmp= {NULL,0}; struct member newMember  = {NULL,NULL,NULL,0,0,0};;
-	tmp = generateId(fp,filePath); newMember.id = tmp.ptr; newMember.idSize = tmp.length;
+struct string generateId(const char *filePath){
+	FILE *fp = IWF_OPEN_READ(filePath);
+	struct member new = {NULL,NULL,NULL,0,0,0};
+	int i = 0;
+	struct string id = {NULL,0};
+
+	while(true){
+		new = readData(fp);
+		if(new.id == NULL){
+			if (i == 0) {
+				id.ptr = (char *) malloc(sizeof(char));
+				id.length++;
+				id.ptr[0] = '1';
+				break;
+			}
+			else{
+				int cntr = 0;
+				while (i != 0){
+					char buf = (i % 10) + '0';
+					if (id.length == 0) id.ptr = (char *) malloc(sizeof(char));
+					else id.ptr = (char *) realloc(id.ptr,(cntr+1)*sizeof(char));
+					id.length++;
+					id.ptr [cntr] = buf;
+					cntr++;
+					i = i / 10;
+				}
+				break;
+			}
+		}
+		else i++;
+	}
+
+	IWF_CLOSE(fp);
+	return id;
+}
+
+void create(const char *filePath){
+	struct string tmp = {NULL,0};
+	struct member newMember  = {NULL,NULL,NULL,0,0,0};
+	tmp = generateId(filePath); newMember.id = tmp.ptr; newMember.idSize = tmp.length;
 	tmp = getTag(); newMember.name = tmp.ptr; newMember.nameSize = tmp.length;
 	tmp = getTag(); newMember.number = tmp.ptr; newMember.numberSize = tmp.length;
-	IWF_CLOSE(fp);
-	IWF_OPEN_WRITE(filePath);
+
+	FILE *fp = IWF_OPEN_WRITE(filePath);
 	for (int i = 0; i < newMember.idSize; i++){
 		fwrite(&newMember.id[i],sizeof(char),1,fp);
 		fflush(fp);
@@ -361,7 +400,9 @@ void create(FILE *fp,const char *filePath){
 	}
 	fwrite("\n",sizeof(char),1,fp);
 	fflush(fp);
+
 	IWF_CLOSE(fp);
+	return;
 }
 
 bool searchById(struct string tag, struct member current){
@@ -643,7 +684,7 @@ void getCommand(FILE *fp, const char *filePath){
 		}
 		//CREATE
 		if ( (i == 5) && cmdIsCreate(cmd.ptr)){
-			create(fp,filePath);
+			create(filePath);
 			cmdFound = true;
 			i = -1;
 		}
