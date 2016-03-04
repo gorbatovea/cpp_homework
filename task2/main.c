@@ -28,7 +28,7 @@ FILE* IWF_OPEN_READ(const char *path){
 }
 
 void IWF_CLOSE(FILE *fp){
-	fclose(fp);
+	if (fp != NULL) fclose(fp);
 	return;
 }
 
