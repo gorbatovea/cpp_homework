@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.4)
-project(Rational)
+set(HEADERS "rational.h")
+set(SOURCES "rational.cpp")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+add_library(rational ${SOURCES} ${HEADERS})
 
-set(SOURCE_FILES main.c)
-add_executable(Rational ${SOURCE_FILES})
+install (TARGETS rational DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install (FILES rational.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install (FILES rational.cpp DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
